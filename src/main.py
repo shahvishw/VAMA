@@ -1,21 +1,27 @@
 from assistant import VamaAssistant
+from speech.stt import SpeechToText
+from speech.tts import TextToSpeech
 
 def main():
-
     vama = VamaAssistant()
+    stt = SpeechToText()
+    tts = TextToSpeech()
 
-    print("-"*20)
-    print("===== VAMA STARTED =====")
-    print("type 'exit' to quite")
+    print('======= VAMA  =======')
+    print('Say exit to quit.')
 
     while True:
-        command = input("You : ")
+
+        command = stt.listen()
+
+        if not command:
+            continue
 
         response = vama.process(command)
 
-        print('VAMA : ',response)
+        tts.speak(response)
 
-        if command.lower().strip() in ('exit','bye'):
+        if command in ('exit','bye'):
             break
 
 if __name__ == '__main__':
