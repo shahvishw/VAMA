@@ -1,19 +1,11 @@
-class CommandParser:
+import json
 
-    def parse(self,command):
+from core.command import Command
 
-        command = command.lower().strip()
+def parse_llm_response(response: str) -> Command:
+    data  = json.loads(response)
 
-        if not command:
-            return None
-
-        words = command.split()
-
-        intent = words[0]
-
-        entity = ' '.join(words[1:]) 
-        
-        return{
-            'intent' : intent,
-            'entity' : entity
-        }
+    return Command(
+        intent= data['intent'],
+        entity= data.get('entity')
+    )
