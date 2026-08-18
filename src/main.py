@@ -1,73 +1,45 @@
 from speech.stt import SpeechToText
 from speech.tts import TextToSpeech
-from ai.llm import ask_vama
-from core.parser import parse_llm_response
-from core.executor import execute
+from ai.llm import VamaBrain
 
-def understand_command(user_input):
-    prompt = f"""
-You are the command understanding system for VAMA.
-
-Convert the user's request into JSON.
-
-Allowed intents:
-- open
-- time
-- date
-- exit
-- hello
-- unknown
-
-Return ONLY valid JSON.
-Do not include markdown.
-Do not explain anything.
-
-Required format:
-{{
-    "intent": "<intent>",
-    "entity": "<entity>"
-}}
-
-User command:
-{user_input}
-"""
-
-    response = ask_vama(prompt)
-
-    print("LLM:", response)
-
-    return parse_llm_response(response)
 
 def main():
 
     stt = SpeechToText()
     tts = TextToSpeech()
 
+    brain = VamaBrain()
+
     print("======= VAMA =======")
-    print("Say 'exit' to quite.")
+    print("Say 'exit' to quit.")
 
-    while True:
+    try:
 
-        user_input = stt.listen()
+        while True:
 
-        if not user_input:
-            continue
+            user_input = stt.listen()
 
-        try :
-            command = understand_command(user_input)
+            if not user_input:
+                continue
 
-            print('Command : ',command)
+            try:
 
-            response = execute(command)
+                response = brain.ask(user_input)
 
-            tts.speak(response)
+                if response:
+                    tts.speak(response)
 
-            if command.intent == 'exit':
-                break
+            except Exception as error:
+                print(f"VAMA: Something went wrong: {error}")
 
-        except Exception as e:
-            print(f"VAMA : Something went worng : {e}")
+    except KeyboardInterrupt:
+
+        print("\nVAMA: Shutting down.")
+
+    finally:
+
+        print("======= VAMA STOPPED =======")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
