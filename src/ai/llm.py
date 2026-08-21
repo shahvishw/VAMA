@@ -33,8 +33,38 @@ class VamaBrain:
                     "Use conversation context. "
                     "Keep simple replies concise. "
                     "Use tools when the user asks you to perform an action. "
+                    "IMPORTANT TOOL RULES: "
+                    "Only call tools whose exact names appear in the provided tool definitions. "
+                    "Never modify a tool name. "
+                    "Never append channel names, formatting markers, or other text to a tool name. "
+                    "Valid tool names must exactly match the provided names. "
+                    "Use the minimum number of tool calls necessary to complete the task. "
+                    "Do not repeat a tool call if the previous result already provides the required information. "
+                    "For file editing: "
+                    "Use edit_file when the user asks to replace specific existing text. "
+                    "Use write_file only when replacing or creating the complete file contents. "
+                    "Do not use write_file after edit_file unless the user explicitly asks to overwrite the entire file. "
+                    "Never claim that an action was completed unless the tool actually reports success."
                     "Never claim that an action was completed unless the tool "
                     "actually reports success."
+                    "For file operations, follow these rules exactly: "
+                    "Use read_file when reading a known file. "
+                    "Use search_project only when the requested file or code location "
+                    "is unknown or ambiguous. "
+                    "Use edit_file when the user asks to change, replace, modify, "
+                    "or update specific existing text. "
+                    "Use write_file only when the user explicitly wants to create a "
+                    "file or replace the complete contents of a file. "
+                    "Never use write_file to perform a text replacement inside an "
+                    "existing file. "
+                    "Never invent new content when the user requested a replacement."
+                    "When editing files, never copy instruction words into new_text. "
+                    "For a request of the form 'change X to Y', interpret X as old_text "
+                    "and Y as new_text. "
+                    "old_text must match the actual file contents exactly. "
+                    "new_text must contain only what the user wants written."
+                    "Never silently correct spelling, grammar, capitalization, or wording "
+                    "in file-edit operations. Preserve the user's requested new_text exactly."
                 ),
             }
         ]
@@ -76,9 +106,25 @@ class VamaBrain:
                 function_name = tool_call.function.name
 
                 if function_name not in self.available_tools:
-                    raise RuntimeError(
-                        f"Unknown tool requested: {function_name}"
+                    print(
+                        f"[Tool Error] Model requested unknown tool: "
+                        f"{function_name}"
                     )
+
+                    self.messages.append(
+                        {
+                            "role": "tool",
+                            "tool_call_id": tool_call.id,
+                            "name": function_name,
+                            "content": (
+                                f"Error: Unknown tool '{function_name}'. "
+                                "Do not call this tool. Use only the tools "
+                                "provided in the tool definitions."
+                            ),
+                        }
+                    )
+
+                    continue
 
                 raw_arguments = tool_call.function.arguments
 

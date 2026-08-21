@@ -105,10 +105,10 @@ TOOL_REGISTRY = {
             "function": {
                 "name": "write_file",
                 "description": (
-                    "Write or replace the complete contents of "
-                    "a text file inside the VAMA project. "
-                    "Use only when the user explicitly asks "
-                    "to create or modify a file."
+                    "Create a new text file or completely replace the entire contents "
+                    "of an existing file. "
+                    "IMPORTANT: Do NOT use this tool when the user asks to replace "
+                    "specific text inside an existing file. Use edit_file instead."
                 ),
                 "parameters": {
                     "type": "object",
@@ -141,11 +141,12 @@ TOOL_REGISTRY = {
             "function": {
                 "name": "edit_file",
                 "description": (
-                    "Edit a specific part of a text file inside "
-                    "the VAMA project by replacing exact existing "
-                    "text with new text. "
-                    "Use this instead of write_file when modifying "
-                    "part of an existing file."
+                    "Edit part of an existing text file by replacing exact text. "
+                    "IMPORTANT: Use this tool whenever the user asks to change, "
+                    "replace, modify, or update specific text inside an existing file. "
+                    "For example, if the user says 'change A to B', use edit_file. "
+                    "Do NOT use write_file for replacing specific text. "
+                    "The old_text must be the exact existing text in the file."
                 ),
                 "parameters": {
                     "type": "object",
@@ -160,14 +161,20 @@ TOOL_REGISTRY = {
                         "old_text": {
                             "type": "string",
                             "description": (
-                                "The exact existing text that "
-                                "must be replaced."
+                                "EXACT text currently present in the file that the user "
+                                "wants replaced. Copy it exactly from the file content. "
+                                "Do not include words such as 'from', 'to', 'change', "
+                                "'replace', or other instruction words unless they are "
+                                "actually part of the file."
                             ),
                         },
-                        "new_text": {
+                       "new_text": {
                             "type": "string",
                             "description": (
-                                "The replacement text."
+                                "Only the new replacement text requested by the user. "
+                                "Do not include instruction words such as 'from', 'to', "
+                                "'change', or 'replace' unless the user explicitly wants "
+                                "those words written into the file."
                             ),
                         },
                     },

@@ -7,7 +7,6 @@ def main():
 
     stt = SpeechToText()
     tts = TextToSpeech()
-
     brain = VamaBrain()
 
     print("======= VAMA =======")
@@ -26,10 +25,19 @@ def main():
 
                 response = brain.ask(user_input)
 
-                if response:
-                    tts.speak(response)
+                tts.speak(response)
+
+                if user_input.strip().lower() in {
+                    "exit",
+                    "quit",
+                    "goodbye",
+                    "good bye",
+                    "bye",
+                }:
+                    break
 
             except Exception as error:
+
                 print(f"VAMA: Something went wrong: {error}")
 
     except KeyboardInterrupt:
